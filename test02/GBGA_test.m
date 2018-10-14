@@ -1,7 +1,5 @@
 
 
-
-
 ObjectiveFunction = @GBGA_fitness;
 nvars = 2;    % Number of variables
 LB = [0 0];   % Lower bound
