@@ -35,7 +35,7 @@ VarSize=[1 nVar];   % Decision Variables Matrix Size
 
 %% GA Parameters
 
-MaxIt= 100;	% Maximum Number of Iterations
+MaxIt= 50;	% Maximum Number of Iterations
 nPop=200;	% Population Size
 
 pc=0;                 % Crossover Percentage
@@ -166,11 +166,9 @@ for it=1:MaxIt
         
         % Perform Mutation
         
-        if (rand() < 1)
-            popm(k).Position=GBGA_MutateNearbyPos(p.Position,mu,gscidx,ggcidx,gs);
-        else
-            popm(k).Position=GBGA_MutatePos(p.Position,mu,gscidx,ggcidx);
-        end
+        if rand() < 0.6
+        popm(k).Position=GBGA_MutateNearbyPos(p.Position,mu,gscidx,ggcidx,gs);
+        
         % Evaluate Mutant
         popm(k).Cost=CostFunction(popm(k).Position);
         
