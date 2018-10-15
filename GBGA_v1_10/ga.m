@@ -15,19 +15,24 @@ clc;
 clear;
 close all;
 
-
 gs = [7 7];
 gsc = [1 1];
 ggc = [7 7];
-cpts = 4;
+cpts = 5;
 Shapes = [2 4];
+
+
 scount  = numel(Shapes);
 
 obsCount = 0;
 
+
 %% Problem Definition
 
-CostFunction=@(x) GBGA_fitness(x, gs);     % Cost Function
+gscidx = GBGA_getGridIndex(gsc,gs);
+ggcidx = GBGA_getGridIndex(ggc,gs);
+
+CostFunction=@(x) GBGA_fitness_minDist(x, gs, gscidx, ggcidx);     % Cost Function
 
 nVar= gs(1)*gs(2);            % Number of Decision Variables
 
@@ -41,7 +46,7 @@ nPop=200;	% Population Size
 pc=0;                 % Crossover Percentage
 nc=2*round(pc*nPop/2);  % Number of Offsprings (also Parnets)
 
-pm=0.3;                 % Mutation Percentage
+pm=0.4;                 % Mutation Percentage
 nm=round(pm*nPop);      % Number of Mutants
 mu=0.1;                % Mutation Rate
 
@@ -70,8 +75,7 @@ empty_individual.Cost=[];
 
 pop=repmat(empty_individual,nPop,1);
 
-gscidx = GBGA_getGridIndex(gsc,gs);
-ggcidx = GBGA_getGridIndex(ggc,gs);
+
 
 for i=1:nPop
    % Initialize Position
@@ -90,10 +94,6 @@ for i=1:nPop
            cptidx = cptidx - 1;
        end
    end
-   
-   %disp(pop(i).Position)
-   %disp('------')
-   % Evaluation
    pop(i).Cost=CostFunction(pop(i).Position);
 
 end

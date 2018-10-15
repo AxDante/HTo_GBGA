@@ -1,0 +1,36 @@
+function minDist=GBGA_fitness_minDist(x, gs, gscidx, ggcidx)
+    
+    ones = find(x);
+    cptarr1 = ones(ones~=gscidx);
+    cptarr = cptarr1(cptarr1~= ggcidx);
+    cpts = numel(cptarr);
+   
+    minDist = Inf;
+    Permi = perms(1:cpts);
+    
+    if numel(Permi) > 25
+        samps = randSample( numel(Permi), 25)';
+        Perm = Permi(samps, :);
+    else
+        Perm = Permi;
+    end
+    
+    
+    for i = 1: size(Perm,1)
+        dissum = 0;
+        gprev = gscidx;
+        for j = 1:size(Perm,2)
+            gprevpos =  GBGA_getGridPos(gprev, gs);
+            gnextpos = GBGA_getGridPos(cptarr(Perm(i,j)), gs);
+            dissum = dissum + norm(gprevpos-gnextpos);
+            gprev = cptarr(Perm(i,j));
+        end
+        gprevpos =  GBGA_getGridPos(gprev, gs);
+        gnextpos = GBGA_getGridPos(ggcidx, gs);
+        dissum = dissum + norm(gprevpos-gnextpos);
+        if dissum < minDist
+            minDist = dissum;
+        end
+    end
+    
+end
