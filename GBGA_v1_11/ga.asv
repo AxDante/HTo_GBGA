@@ -15,24 +15,19 @@ clc;
 clear;
 close all;
 
+
 gs = [7 7];
 gsc = [1 1];
-ggc = [1 2];
-cpts = 5;
+ggc = [7 7];
+cpts = 4;
 Shapes = [2 4];
-
-
 scount  = numel(Shapes);
 
 obsCount = 0;
 
-
 %% Problem Definition
 
-gscidx = GBGA_getGridIndex(gsc,gs);
-ggcidx = GBGA_getGridIndex(ggc,gs);
-
-CostFunction=@(x) GBGA_fitness_minDist(x, gs, gscidx, ggcidx);     % Cost Function
+CostFunction=@(x) GBGA_fitness(x, gs);     % Cost Function
 
 nVar= gs(1)*gs(2);            % Number of Decision Variables
 
@@ -40,13 +35,13 @@ VarSize=[1 nVar];   % Decision Variables Matrix Size
 
 %% GA Parameters
 
-MaxIt= 100;	% Maximum Number of Iterations
+MaxIt= 50;	% Maximum Number of Iterations
 nPop=200;	% Population Size
 
 pc=0;                 % Crossover Percentage
 nc=2*round(pc*nPop/2);  % Number of Offsprings (also Parnets)
 
-pm=0.4;                 % Mutation Percentage
+pm=0.3;                 % Mutation Percentage
 nm=round(pm*nPop);      % Number of Mutants
 mu=0.1;                % Mutation Rate
 
@@ -75,7 +70,8 @@ empty_individual.Cost=[];
 
 pop=repmat(empty_individual,nPop,1);
 
-
+gscidx = GBGA_getGridIndex(gsc,gs);
+ggcidx = GBGA_getGridIndex(ggc,gs);
 
 for i=1:nPop
    % Initialize Position
@@ -94,6 +90,10 @@ for i=1:nPop
            cptidx = cptidx - 1;
        end
    end
+   
+   %disp(pop(i).Position)
+   %disp('------')
+   % Evaluation
    pop(i).Cost=CostFunction(pop(i).Position);
 
 end
@@ -166,11 +166,9 @@ for it=1:MaxIt
         
         % Perform Mutation
         
-        if (rand() < 1)
-            popm(k).Position=GBGA_MutateNearbyPos(p.Position,mu,gscidx,ggcidx,gs);
-        else
-            popm(k).Position=GBGA_MutatePos(p.Position,mu,gscidx,ggcidx);
-        end
+        if rand() < 0.6
+        popm(k).Position=GBGA_MutateNearbyPos(p.Position,mu,gscidx,ggcidx,gs);
+        
         % Evaluate Mutant
         popm(k).Cost=CostFunction(popm(k).Position);
         

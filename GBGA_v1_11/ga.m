@@ -17,8 +17,8 @@ close all;
 
 gs = [7 7];
 gsc = [1 1];
-ggc = [1 2];
-cpts = 5;
+ggc = [7 7];
+cpts = 7;
 Shapes = [2 4];
 
 
