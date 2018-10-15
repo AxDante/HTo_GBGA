@@ -9,7 +9,6 @@ function y=GBGA_MutateNearbyPos(x,mu, gscidx, ggcidx, gs)
         canStart = false;
         while (~canStart)
             randidx1 = ones(randi(numel(ones)));
-            %randidx1=randsample(numel(ones),1)
             if (randidx1 ~= gscidx && randidx1 ~= ggcidx)
                  canStart = true;
              end
@@ -28,6 +27,5 @@ function y=GBGA_MutateNearbyPos(x,mu, gscidx, ggcidx, gs)
         y = x;
         y(randidx1) = x(randidx2);
         y(randidx2) = x(randidx1);
-        
     end
 end

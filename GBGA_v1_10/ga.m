@@ -17,10 +17,18 @@ close all;
 
 gs = [7 7];
 gsc = [1 1];
-ggc = [1 2];
-cpts = 5;
+ggc = [7 1];
+cpts = 4;
 Shapes = [2 4];
 
+
+obsmap = [0 0 0 1 1 0 0;
+                    0 0 0 1 1 0 0; 
+                    0 0 0 1 1 1 0;
+                    0 0 0 1 1 0 0;
+                    0 0 1 1 1 0 0;
+                    0 0 1 0 0 0 0;
+                    0 0 0 0 0 0 0]';
 
 scount  = numel(Shapes);
 
@@ -32,7 +40,7 @@ obsCount = 0;
 gscidx = GBGA_getGridIndex(gsc,gs);
 ggcidx = GBGA_getGridIndex(ggc,gs);
 
-CostFunction=@(x) GBGA_fitness_minDist(x, gs, gscidx, ggcidx);     % Cost Function
+CostFunction=@(x) GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap);     % Cost Function
 
 nVar= gs(1)*gs(2);            % Number of Decision Variables
 
@@ -48,7 +56,7 @@ nc=2*round(pc*nPop/2);  % Number of Offsprings (also Parnets)
 
 pm=0.4;                 % Mutation Percentage
 nm=round(pm*nPop);      % Number of Mutants
-mu=0.1;                % Mutation Rate
+mu=0.2;                % Mutation Rate
 
 
 ANSWER=questdlg('Choose selection method:','Genetic Algorith',...
@@ -74,7 +82,6 @@ empty_individual.Position=[];
 empty_individual.Cost=[];
 
 pop=repmat(empty_individual,nPop,1);
-
 
 
 for i=1:nPop
@@ -208,12 +215,6 @@ end
 %disp( BestSol.Position);
  
     
-%{
-ones = find(BestSol.Position);
-for i = 1: numel(ones)
-    posi = GBGA_getGridPos(ones(i), gs);
-end
-%}
 vec2mat(BestSol.Position,gs(1))
 
 figure;
