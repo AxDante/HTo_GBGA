@@ -27,10 +27,10 @@ function sums=GBGA_fitness(x, gs)
     end
 
     if (numel(ones) < 5)
-        sums = sums +  (5-numel(ones)) * 30;
+        %sums = sums +  (5-numel(ones)) * 30;
     end
     if x(1) ~= 1 || x(25) ~= 1
-        sums = sums + 150;
+       % sums = sums + 150;
     end
     
     z=sum(x);

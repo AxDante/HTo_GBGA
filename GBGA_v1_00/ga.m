@@ -16,9 +16,12 @@ clear;
 close all;
 
 
-gs = [5 5];
+gs = [7 7];
 gsc = [1 1];
-ggc = [5 5];
+ggc = [7 7];
+cpts = 4;
+Shapes = [2 4];
+scount  = numel(Shapes);
 
 obsCount = 0;
 
@@ -32,16 +35,15 @@ VarSize=[1 nVar];   % Decision Variables Matrix Size
 
 %% GA Parameters
 
-MaxIt=400;	% Maximum Number of Iterations
+MaxIt= 50;	% Maximum Number of Iterations
+nPop=200;	% Population Size
 
-nPop= 25;	% Population Size
-
-pc=0.7;                 % Crossover Percentage
+pc=0;                 % Crossover Percentage
 nc=2*round(pc*nPop/2);  % Number of Offsprings (also Parnets)
 
 pm=0.3;                 % Mutation Percentage
 nm=round(pm*nPop);      % Number of Mutants
-mu=0.5;                % Mutation Rate
+mu=0.1;                % Mutation Rate
 
 
 ANSWER=questdlg('Choose selection method:','Genetic Algorith',...
@@ -73,11 +75,24 @@ ggcidx = GBGA_getGridIndex(ggc,gs);
 
 for i=1:nPop
    % Initialize Position
-   pop(i).Position=randi([0 1],VarSize);
    
-   %pop(i).Position(:,gscidx) = 1;
-   %pop(i).Position(:,ggcidx,:) = 1;
+   pop(i).Position=zeros(1, nVar);
    
+   pop(i).Position(:,gscidx) = 1;
+   pop(i).Position(:,ggcidx) = 1;
+   
+   cptidx = cpts;
+   rnd = randi(scount, [1, cpts]);
+   while (cptidx ~= 0)
+       asspos =randi(nVar);
+       if (asspos ~= gscidx && asspos ~= ggcidx && pop(i).Position(:,asspos) == 0)
+           pop(i).Position(:,asspos) = Shapes(rnd(cptidx));
+           cptidx = cptidx - 1;
+       end
+   end
+   
+   disp(pop(i).Position)
+   %disp('------')
    % Evaluation
    pop(i).Cost=CostFunction(pop(i).Position);
 
@@ -150,7 +165,7 @@ for it=1:MaxIt
         p=pop(i);
         
         % Perform Mutation
-        popm(k).Position=GBGA_MutatePos(p.Position,mu);
+        popm(k).Position=GBGA_MutateNearbyPos(p.Position,mu,gscidx,ggcidx,gs);
         
         % Evaluate Mutant
         popm(k).Cost=CostFunction(popm(k).Position);
@@ -189,11 +204,14 @@ end
 %disp( BestSol.Position);
  
     
+%{
 ones = find(BestSol.Position);
 for i = 1: numel(ones)
-    posi = GBGA_getGridPos(ones(i), gs)
+    posi = GBGA_getGridPos(ones(i), gs);
 end
-    
+%}
+vec2mat(BestSol.Position,gs(1))
+
 figure;
 plot(BestCost,'LineWidth',2);
 xlabel('Iteration');

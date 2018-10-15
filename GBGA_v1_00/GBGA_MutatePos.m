@@ -1,25 +1,28 @@
-function y=GBGA_MutatePos(x,mu)
+function y=GBGA_MutatePos(x,mu, gscidx, ggcidx)
 
-    goodMutate = false;
+    nVar=numel(x);
+    nmu=ceil(mu*nVar);
+    %toSwap=randsample(nVar,nmu);
     
-    while (~goodMutate)
-        nVar=numel(x);
-
-        nmu=ceil(mu*nVar);
-        if mod(nmu, 2) ~= 0
-            nmu = nmu + 1;
+    for swapidx = 1 : nmu
+        ones = find(x);
+        canStart = false;
+        while (~canStart)
+            randidx1=randsample(numel(ones),1);
+            if (randidx1 ~= gscidx && randidx1 ~= ggcidx)
+                 canStart = true;
+             end
         end
-
-        j=randsample(nVar,nmu);
-
-        y=x;
-        y(j)=1-x(j);
+        canSwap = false;
+        while (~canSwap)
+             randidx2=randsample(nVar,1);
+             if (randidx2 ~= randidx1 && randidx2 ~= gscidx && randidx2 ~= ggcidx)
+                 canSwap = true;
+             end
+        end
+        y = x;
+        y(randidx1) = x(randidx2);
+        y(randidx2) = x(randidx1);
         
-        ones_x = numel(find(x));
-        ones_y = numel(find(y));
-        if mod(ones_x - ones_y, 2) == 0
-            goodMutate = true;
-        end
-    
     end
 end
