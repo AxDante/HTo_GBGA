@@ -1,4 +1,4 @@
-function minDist=GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap)
+function [minDist, wpSequ]=GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap, cpSequ)
     
     ones = find(x);
     cptarr1 = ones(ones~=gscidx);
@@ -15,15 +15,18 @@ function minDist=GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap)
         Perm = Permi;
     end
     
-    Distable = zeros(numel(x));
+    disTable = zeros(numel(x));
+    wpTable = cell(numel(x));
     for i = 1 : numel(ones)
          for j = 1 : numel(ones)
+             
              posi = GBGA_getGridPos(ones(i), gs);
              posj = GBGA_getGridPos(ones(j), gs);
              
              reached = false;
              posc = posi;
              distot = 0;
+             wp = [posi];
              while(~reached)
                  posdif = posj-posc;
                  if (posdif(1) == 0 && posdif(2) == 0)
@@ -43,32 +46,40 @@ function minDist=GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap)
                         posc = posc + [0 -1];
                     end
                  end 
+                 
+                 wp = [wp; posc];
+                 
                  if obsmap(posc(1),posc(2)) == 1
-                    distot = distot + 100;
+                    distot = distot + 30;
                  else
                      distot = distot;
                  end
              end
-             
-             Distable(ones(i), ones(j)) = distot + norm(posi-posj);
+             disTable(ones(i), ones(j)) = distot + norm(posi-posj);
+             wpTable{ones(i), ones(j)} = [wp];
          end
     end
     
     for i = 1: size(Perm,1)
         dissum = 0;
+        wpConc = [GBGA_getGridPos(gscidx, gs)];
         gprev = gscidx;
         for j = 1:size(Perm,2)
             gnext = cptarr(Perm(i,j));
-            dissum = dissum + Distable(gprev, gnext);
+            dissum = dissum + disTable(gprev, gnext);
             if dissum > minDist
-                return
+                break
             end
+            wpTable{i, j}
+            wpConc = [wpConc; wpTable{i, j}]
             gprev = cptarr(Perm(i,j));
         end
         gnext = ggcidx;
-        dissum = dissum + Distable(gprev, gnext);
+        dissum = dissum + disTable(gprev, gnext);
+        wpConc = [wpConc; GBGA_getGridPos(ggcidx, gs)];
         if dissum < minDist
             minDist = dissum;
+            wpSequ = wpConc;
         end
     end
 end

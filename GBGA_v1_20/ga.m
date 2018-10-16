@@ -15,21 +15,23 @@ clc;
 clear;
 close all;
 
-gs = [7 7];
+gs = [5 5];
 gsc = [1 1];
-ggc = [7 1];
-cpts = 4;
+ggc = [5 1];
+cpts = 5;
 Shapes = [2 4];
 
 
 obsmap = [0 0 0 1 1 0 0;
-                    11 1 0 1 1 0 0; 
+                    0 0 0 1 1 0 0; 
                     0 0 0 1 1 1 0;
-                    0 0 0 1 0 0 0;
-                    0 1 0 0 1 0 0;
-                    0 1 0 0 0 0 0;
-                    0 1 0 0 0 0 0]';
-
+                    0 0 0 1 1 0 0;
+                    0 0 1 1 1 0 0;
+                    0 0 1 0 0 0 0;
+                    0 0 0 0 0 0 0]';
+                
+obsmap = zeros(5);
+                
 scount  = numel(Shapes);
 
 obsCount = 0;
@@ -40,7 +42,8 @@ obsCount = 0;
 gscidx = GBGA_getGridIndex(gsc,gs);
 ggcidx = GBGA_getGridIndex(ggc,gs);
 
-CostFunction=@(x) GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap);     % Cost Function
+cpSequ = [];
+CostFunction=@(x) GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap, cpSequ);     % Cost Function
 
 nVar= gs(1)*gs(2);            % Number of Decision Variables
 
@@ -92,19 +95,26 @@ for i=1:nPop
    pop(i).Position(:,gscidx) = 1;
    pop(i).Position(:,ggcidx) = 1;
    
-   cptidx = cpts;
+   cptidx = 1;
    rnd = randi(scount, [1, cpts]);
-   while (cptidx ~= 0)
+   pop(i).cpSequ = zeros(1, cpts);                       
+   while (cptidx < cpts)
        asspos =randi(nVar);
        if (asspos ~= gscidx && asspos ~= ggcidx && pop(i).Position(:,asspos) == 0)
            pop(i).Position(:,asspos) = Shapes(rnd(cptidx));
-           cptidx = cptidx - 1;
+           cptidx = cptidx + 1;
+           pop(i).cpSequ(cptidx) = asspos;
        end
    end
-   pop(i).Cost=CostFunction(pop(i).Position);
-
+   
+   cpSequs = [1 3 4];
+   
+   % GBGA_fitness_minDist(x, gs, gscidx, ggcidx, obsmap, cpSequ);
+   %[pop(i).Cost, pop(i).WpSequ]=CostFunction(pop(i).Position);
+   [pop(i).Cost, pop(i).wpSequ]=GBGA_fitness_minDist(pop(i).Position, gs, gscidx, ggcidx, obsmap, pop(i).cpSequ);
+   %pop(i).WpSequ
 end
-
+pop(i).wpSequ
     
 % Sort Population
 Costs=[pop.Cost];
@@ -158,6 +168,7 @@ for it=1:MaxIt
         % Evaluate Offsprings
         popc(k,1).Cost=CostFunction(popc(k,1).Position);
         popc(k,2).Cost=CostFunction(popc(k,2).Position);
+       
         
     end
     popc=popc(:);
@@ -180,12 +191,14 @@ for it=1:MaxIt
         end
         % Evaluate Mutant
         popm(k).Cost=CostFunction(popm(k).Position);
+        popm(k).wpSequ=p.wpSequ;
+        popm(k).cpSequ=p.cpSequ;
         
     end
     
     % Create Merged Population
     pop=[pop
-         popc
+         %popc
          popm]; %#ok
      
     % Sort Population
@@ -216,6 +229,7 @@ end
  
     
 vec2mat(BestSol.Position,gs(1))
+disp(BestSol.wpSequ)
 
 figure;
 plot(BestCost,'LineWidth',2);
